@@ -2,25 +2,50 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>GAS 書き込みテスト by Tちゃん</title>
+  <title>GAS 書き込みテスト</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    button { padding: 0.5em 1em; font-size: 1em; cursor: pointer; }
+    #response { margin-top: 1em; padding: 1em; background-color: #f0f0f0; border-radius: 5px; }
+  </style>
 </head>
 <body>
-  <button id="send">スプレッドシートに書き込む</button>
+  <h1>GAS連携テストページ</h1>
+  <p>下のボタンを押すと、テストデータがスプレッドシートに送信されます。</p>
+  <button id="send">テストデータを送信する</button>
+  <pre id="response">ここに結果が表示されます...</pre>
+
   <script>
-    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyNkPhCyXS5Pm5vsOdBpKyLlpqhsdmF-gkC1apDHPzX7GjQVFI9wiFZmFd8ZSSYo3Pc5g/exec';
+    // ★★★ あなたのGASウェブアプリのURLに書き換えてください ★★★
+    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbzImtoOQkOhFN8wLPANWzNbdGhNrpUl16L9xF3y4v9taWEvRdVfvHFIFzusx_OG7NQHVQ/exec';
 
     document.getElementById('send').onclick = () => {
+      const responseArea = document.getElementById('response');
+      responseArea.textContent = '送信中...';
+
+      // GASが期待する形式のテストデータを作成
       const payload = {
-        name: 'github-test',
-        value: Math.random().toString(36).slice(2, 8)
+        employeeId: '99999', // テスト用の社員番号
+        stage: '1',           // テスト用のステージ番号
+        answers: ['A', 'A', 'A', 'A', 'A'] // テスト用の回答データ
       };
+
       fetch(ENDPOINT, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
+        // mode: 'no-cors' はデバッグの妨げになるため削除します
         body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        responseArea.textContent = '送信成功！\n\n' + JSON.stringify(data, null, 2);
+        alert('送信成功！スプレッドシートを確認してください。');
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        responseArea.textContent = '送信失敗...\n\n' + error;
+        alert('送信に失敗しました。コンソールを確認してください。');
       });
-      alert('送信したで〜 スプレッドシート見て確認してな！');
     };
   </script>
 </body>
